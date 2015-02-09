@@ -121,6 +121,16 @@ extern Mouse_ Mouse;
 //================================================================================
 //================================================================================
 //	Keyboard
+// USB HID based keycodes
+// as taken from: http://www.usb.org/developers/devclass_docs/Hut1_11.pdf
+#define KEYCODE_LEFT_CTRL		0xE0
+#define KEYCODE_LEFT_SHIFT		0xE1
+#define KEYCODE_LEFT_ALT		0xE2
+#define KEYCODE_LEFT_GUI		0xE3
+#define KEYCODE_RIGHT_CTRL		0xE4
+#define KEYCODE_RIGHT_SHIFT		0xE5
+#define KEYCODE_RIGHT_ALT		0xE6
+#define KEYCODE_RIGHT_GUI		0xE7
 
 #define KEY_LEFT_CTRL		0x80
 #define KEY_LEFT_SHIFT		0x81
@@ -159,7 +169,20 @@ extern Mouse_ Mouse;
 #define KEY_F11				0xCC
 #define KEY_F12				0xCD
 
+#define KEY_NUM_LOCK			0xDB
+#define KEY_SCROLL_LOCK			0xCF
+
+#define LED_NUM_LOCK			0x01
+#define LED_CAPS_LOCK			0x02
+#define LED_SCROLL_LOCK			0x04
+
 //	Low level key report: up to 6 keys and shift, ctrl etc at once
+#define KEYREPORT_KEYCOUNT	0x06
+
+// Define supported layouts
+#define US_LAYOUT 0x00
+#define IT_LAYOUT 0x01
+
 typedef struct
 {
 	uint8_t modifiers;
@@ -172,6 +195,10 @@ class Keyboard_ : public Print
 private:
 	KeyReport _keyReport;
 	void sendReport(KeyReport* keys);
+	//we introduce the ledstatus
+	uint8_t _ledStatus;
+	//we introduce keylayout
+	uint8_t _keyLayout;
 public:
 	Keyboard_(void);
 	void begin(void);
@@ -179,10 +206,19 @@ public:
 	virtual size_t write(uint8_t k);
 	virtual size_t press(uint8_t k);
 	virtual size_t release(uint8_t k);
+	//add the posisbility to directly submit keycodes (see: https://weizenspr.eu/2013/arduino-leonardo-und-das-keyboard-api-problem/)
+	virtual size_t pressKeycode(uint8_t k, uint8_t send);
+	virtual size_t releaseKeycode(uint8_t k, uint8_t send);
 	virtual void releaseAll(void);
+	//introduced for keyboard layout
+	virtual void setKeyLayout(uint8_t);
+	virtual uint8_t getKeyLayout(void);
+	virtual void setLedStatus(uint8_t);
+	virtual uint8_t getLedStatus(void);
+	//introduced to check for capslock
+	virtual bool isCapsLockOn();
 };
 extern Keyboard_ Keyboard;
-
 //================================================================================
 //================================================================================
 //	Low level API

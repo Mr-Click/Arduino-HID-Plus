@@ -93,6 +93,17 @@ const u8 _hidReportDescriptor[] = {
     0x75, 0x08,                    //   REPORT_SIZE (8)
     0x81, 0x03,                    //   INPUT (Cnst,Var,Abs)
     
+//ADDED to include LED report
+	0x95, 0x05,                    //   REPORT_COUNT (5)
+    0x75, 0x01,                    //   REPORT_SIZE (1)
+    0x05, 0x08,                    //   USAGE_PAGE (LEDs)
+    0x19, 0x01,                    //   USAGE_MINIMUM (1)
+    0x29, 0x05,                    //   USAGE_MAXIMUM (5)
+    0x91, 0x02,                    //   OUTPUT (Data,Var,Abs) // LED report
+    0x95, 0x01,                    //   REPORT_COUNT (1)
+    0x75, 0x03,                    //   REPORT_SIZE (3)
+    0x91, 0x01,                    //   OUTPUT (Constant) // padding 
+
 	0x95, 0x06,                    //   REPORT_COUNT (6)
     0x75, 0x08,                    //   REPORT_SIZE (8)
     0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
@@ -190,6 +201,18 @@ bool WEAK HID_Setup(Setup& setup)
 		{
 			_hid_idle = setup.wValueL;
 			return true;
+		}
+		//ADDED To handle ledstatus
+		if (HID_SET_REPORT == r)
+		{
+			if(setup.wLength == 2)
+			{
+				uint8_t data[2];
+				if(2 == USB_RecvControl(data,2))
+				{
+					Keyboard.setLedStatus(data[1]);
+				}
+			}
 		}
 	}
 	return false;
@@ -413,7 +436,191 @@ const uint8_t _asciimap[128] =
 	0				// DEL
 };
 
+//Added to implement IT layout mapping
+extern
+const uint8_t _asciimapIT[128] PROGMEM;
+#define ALTGR 0x40
+const uint8_t _asciimapIT[128] =
+{
+	0x00,             // NUL
+	0x00,             // SOH
+	0x00,             // STX
+	0x00,             // ETX
+	0x00,             // EOT
+	0x00,             // ENQ
+	0x00,             // ACK  
+	0x00,             // BEL
+	0x2a,			// BS	Backspace
+	0x2b,			// TAB	Tab
+	0x28,			// LF	Enter
+	0x00,             // VT 
+	0x00,             // FF 
+	0x00,             // CR 
+	0x00,             // SO 
+	0x00,             // SI 
+	0x00,             // DEL
+	0x00,             // DC1
+	0x00,             // DC2
+	0x00,             // DC3
+	0x00,             // DC4
+	0x00,             // NAK
+	0x00,             // SYN
+	0x00,             // ETB
+	0x00,             // CAN
+	0x00,             // EM 
+	0x00,             // SUB
+	0x00,             // ESC
+	0x00,             // FS 
+	0x00,             // GS 
+	0x00,             // RS 
+	0x00,             // US 
+
+	0x2c,		   //  ' ' IT_LAYOUT
+	0x1e|SHIFT,	   // ! IT_LAYOUT
+	0x1f|SHIFT,	   // " IT_LAYOUT
+	0x34|ALTGR,    // # IT_LAYOUT (KEY_QUOTE + KEYCODE_RIGHT_ALT)
+	0x21|SHIFT,    // $ IT_LAYOUT (KEY2 + SHIFT_MASK)
+	0x22|SHIFT,    // % IT_LAYOUT KEY5|SHIFT
+	0x23|SHIFT,    // & IT_LAYOUT KEY6|SHIFT
+	0x2d,          // ' IT_LAYOUT KEY_MINUS
+	0x25|SHIFT,    // ( IT_LAYOUT KEY8+SHIFT
+	0x26|SHIFT,    // ) IT_LAYOUT 
+	0x30|SHIFT,    // * IT_LAYOUT KEY_RIGHT_BRACE + SHIFT
+	0x30,    	   // + IT_LAYOUT
+	0x36,          // , IT_LAYOUT 
+	0x38,          // - IT_LAYOUT KEY_SLASH
+	0x37,          // . IT_LAYOUT
+	0x24|SHIFT,    // / IT_LAYOUT KEY7 + SHIFT
+	0x27,          // 0 IT_LAYOUT
+	0x1e,          // 1 IT_LAYOUT
+	0x1f,          // 2 IT_LAYOUT
+	0x20,          // 3 IT_LAYOUT
+	0x21,          // 4 IT_LAYOUT
+	0x22,          // 5 IT_LAYOUT
+	0x23,          // 6 IT_LAYOUT
+	0x24,          // 7 IT_LAYOUT
+	0x25,          // 8 IT_LAYOUT
+	0x26,          // 9 IT_LAYOUT
+	0x37|SHIFT,      // : IT_LAYOUT
+	0x36|SHIFT,      // ; IT_LAYOUT KEY_COMMA + SHIFT MASK 
+	0x64,      // <  IT_LAYOUT 
+	0x27|SHIFT,          // = IT_LAYOUT 
+	0x64|SHIFT,      // > IT_LAYOUT  notice that 0x64 is the only keycode that has the first leftmost four bits higher than 3..this is an issue when we encode ALTGR as 0x40 
+	0x2d|SHIFT,      // ? IT_LAYOUT
+	0x33|ALTGR,       // @ IT_LAYOUT KEY_SEMICOLON+ALTGR_MASK
+	0x04|SHIFT,      // A IT_LAYOUT
+	0x05|SHIFT,      // B IT_LAYOUT 
+	0x06|SHIFT,      // C IT_LAYOUT
+	0x07|SHIFT,      // D IT_LAYOUT
+	0x08|SHIFT,      // E IT_LAYOUT
+	0x09|SHIFT,      // F IT_LAYOUT
+	0x0a|SHIFT,      // G IT_LAYOUT 
+	0x0b|SHIFT,      // H IT_LAYOUT 
+	0x0c|SHIFT,      // I IT_LAYOUT 
+	0x0d|SHIFT,      // J IT_LAYOUT 
+	0x0e|SHIFT,      // K IT_LAYOUT 
+	0x0f|SHIFT,      // L IT_LAYOUT 
+	0x10|SHIFT,      // M IT_LAYOUT
+	0x11|SHIFT,      // N IT_LAYOUT 
+	0x12|SHIFT,      // O IT_LAYOUT
+	0x13|SHIFT,      // P IT_LAYOUT
+	0x14|SHIFT,      // Q IT_LAYOUT 
+	0x15|SHIFT,      // R IT_LAYOUT 
+	0x16|SHIFT,      // S IT_LAYOUT 
+	0x17|SHIFT,      // T IT_LAYOUT 
+	0x18|SHIFT,      // U IT_LAYOUT 
+	0x19|SHIFT,      // V IT_LAYOUT
+	0x1a|SHIFT,      // W IT_LAYOUT
+	0x1b|SHIFT,      // X IT_LAYOUT
+	0x1c|SHIFT,      // Y IT_LAYOUT 
+	0x1d|SHIFT,      // Z IT_LAYOUT 
+	0x2f|ALTGR,      // [ IT_LAYOUT KEY_LEFT_BRACE + ALTGR_MASK
+	0x35,          // bslash IT_LAYOUT KEY_TILDE
+	0x30|ALTGR,     // ] IT_LAYOUT KEY_RIGHT_BRACE + ALTGR_MASK
+	0x2e|SHIFT,    // ^ IT_LAYOUT KEY_EQUAL + SHIFT_MASK
+	0x38|SHIFT,    // _ IT_LAYOUT KEY_SLASH + SHIFT_MASK
+	0x35,          // `
+	0x04,          // a IT_LAYOUT
+	0x05,          // b IT_LAYOUT
+	0x06,          // c IT_LAYOUT
+	0x07,          // d IT_LAYOUT
+	0x08,          // e IT_LAYOUT
+	0x09,          // f IT_LAYOUT
+	0x0a,          // g IT_LAYOUT
+	0x0b,          // h IT_LAYOUT
+	0x0c,          // i IT_LAYOUT
+	0x0d,          // j IT_LAYOUT
+	0x0e,          // k IT_LAYOUT
+	0x0f,          // l IT_LAYOUT
+	0x10,          // m IT_LAYOUT
+	0x11,          // n IT_LAYOUT
+	0x12,          // o IT_LAYOUT
+	0x13,          // p IT_LAYOUT
+	0x14,          // q IT_LAYOUT
+	0x15,          // r IT_LAYOUT
+	0x16,          // s IT_LAYOUT
+	0x17,          // t IT_LAYOUT
+	0x18,          // u IT_LAYOUT
+	0x19,          // v IT_LAYOUT
+	0x1a,          // w IT_LAYOUT
+	0x1b,          // x IT_LAYOUT
+	0x1c,          // y IT_LAYOUT
+	0x1d,          // z IT_LAYOUT
+	0x2f|SHIFT|ALTGR,  // { IT_LAYOUT 
+	0x35|SHIFT,    // | IT_LAYOUT KEY_TILDE + SHIFT
+	0x30|SHIFT|ALTGR, // } IT_LAYOUT 
+	0x35|SHIFT,    // ~
+	0				// DEL
+};
+
 uint8_t USBPutChar(uint8_t c);
+
+// pressKeycode() adds the specified key (printing, non-printing, or modifier)
+// to the persistent key report and sends the report.  Because of the way 
+// USB HID works, the host acts like the key remains pressed until we 
+// call releaseKeycode(), releaseAll(), or otherwise clear the report and resend.
+// When send is set to FALSE (= 0x00) no sendReport() is executed. This comes in
+// handy when combining key presses (e.g. SHIFT+A).
+size_t Keyboard_::pressKeycode(uint8_t k, uint8_t send) 
+{
+	uint8_t index = 0x00;
+	uint8_t done = 0x00;
+	
+	if ((k >= KEYCODE_LEFT_CTRL) && (k <= KEYCODE_RIGHT_GUI)) {
+		// it's a modifier key
+		_keyReport.modifiers |= (0x01 << (k - KEYCODE_LEFT_CTRL));
+	} else {
+		// it's some other key:
+		// Add k to the key report only if it's not already present
+		// and if there is an empty slot.
+		for (index = 0x00; index < KEYREPORT_KEYCOUNT; index++) {
+			if (_keyReport.keys[index] != k) { // is k already in list?
+				if (0x00 == _keyReport.keys[index]) { // have we found an empty slot?
+					_keyReport.keys[index] = k;
+					done = 0x01;
+					break;
+				}
+			} else {
+				done = 0x01;
+				break;
+			}
+			
+		}
+		
+		// use separate variable to check if slot was found
+		// for style reasons - we do not know how the compiler
+		// handles the for() index when it leaves the loop
+		if (0x00 == done) {
+			setWriteError();
+			return 0x00;
+		}
+	}
+	
+	if (0x00 != send) {
+		sendReport(&_keyReport);
+	}
+	return 0x01;
+}
 
 // press() adds the specified key (printing, non-printing, or modifier)
 // to the persistent key report and sends the report.  Because of the way 
@@ -421,6 +628,7 @@ uint8_t USBPutChar(uint8_t c);
 // call release(), releaseAll(), or otherwise clear the report and resend.
 size_t Keyboard_::press(uint8_t k) 
 {
+	uint8_t keylayout = getKeyLayout();
 	uint8_t i;
 	if (k >= 136) {			// it's a non-printing key (not a modifier)
 		k = k - 136;
@@ -428,7 +636,33 @@ size_t Keyboard_::press(uint8_t k)
 		_keyReport.modifiers |= (1<<(k-128));
 		k = 0;
 	} else {				// it's a printing key
-		k = pgm_read_byte(_asciimap + k);
+		//we need to consider which layout are we using
+		if (keylayout == US_LAYOUT) {
+			k = pgm_read_byte(_asciimap + k);
+		}
+		else if (keylayout == IT_LAYOUT) {
+			//we need to check only for two ASCII characters that cannot
+			//be produced in an IT keyboard with one single key and a combination
+			//of modifiers...
+			//In case we have to press a grave accent
+			if (k == 96)
+			{
+				Keyboard.pressKeycode(KEYCODE_LEFT_ALT, false);
+				Keyboard.pressKeycode(0x61, false);
+				Keyboard.pressKeycode(0x5e, true);
+				return 1;
+			}
+			//If we have to press tilde
+			else if(k == 126)
+			{
+				Keyboard.pressKeycode(KEYCODE_LEFT_ALT, false);
+				Keyboard.pressKeycode(0x59, false);
+				Keyboard.pressKeycode(0x5a, false);
+				Keyboard.pressKeycode(0x5e, true);
+				return 1;
+			}
+			k = pgm_read_byte(_asciimapIT + k);
+		}
 		if (!k) {
 			setWriteError();
 			return 0;
@@ -436,6 +670,15 @@ size_t Keyboard_::press(uint8_t k)
 		if (k & 0x80) {						// it's a capital letter or other character reached with shift
 			_keyReport.modifiers |= 0x02;	// the left shift modifier
 			k &= 0x7F;
+		}
+		//it is a character reached with ALTGR but it is not < (0x64) 
+		//which is the only character that higher than 0x3F
+		if((k & 0x40) && (k != 0x64)) {
+			//the ALTGR modifier which is different from the ALTGR
+			//keycode that is 0xE6
+			_keyReport.modifiers |= 0x40;
+			//we clean the ALTGR mask
+			k &= 0x3F;
 		}
 	}
 	
@@ -460,6 +703,55 @@ size_t Keyboard_::press(uint8_t k)
 	return 1;
 }
 
+// releaseKeycode() takes the specified key out of the persistent key report and
+// sends the report.  This tells the OS the key is no longer pressed and that
+// it shouldn't be repeated any more.
+// When send is set to FALSE (= 0x00) no sendReport() is executed. This comes in
+// handy when combining key releases (e.g. SHIFT+A).
+size_t Keyboard_::releaseKeycode(uint8_t k, uint8_t send) 
+{
+	uint8_t indexA;
+	uint8_t indexB;
+	uint8_t count;
+	
+	if ((k >= KEYCODE_LEFT_CTRL) && (k <= KEYCODE_RIGHT_GUI)) {
+		// it's a modifier key
+		_keyReport.modifiers = _keyReport.modifiers & (~(0x01 << (k - KEYCODE_LEFT_CTRL)));
+	} else {
+		// it's some other key:
+		// Test the key report to see if k is present.  Clear it if it exists.
+		// Check all positions in case the key is present more than once (which it shouldn't be)
+		for (indexA = 0x00; indexA < KEYREPORT_KEYCOUNT; indexA++) {
+			if (_keyReport.keys[indexA] == k) {
+				_keyReport.keys[indexA] = 0x00;
+			}
+		}
+		
+		// finally rearrange the keys list so that the free (= 0x00) are at the
+		// end of the keys list - some implementations stop for keys at the
+		// first occurence of an 0x00 in the keys list
+		// so (0x00)(0x01)(0x00)(0x03)(0x02)(0x00) becomes (0x01)(0x03)(0x02)(0x00)(0x00)(0x00)
+		count = 0x00; // holds the number of zeros we've found
+		indexA = 0x00;
+		while ((indexA + count) < KEYREPORT_KEYCOUNT) {
+			if (0x00 == _keyReport.keys[indexA]) {
+				count++; // one more zero
+				for (indexB = indexA; indexB < KEYREPORT_KEYCOUNT-count; indexB++) {
+					_keyReport.keys[indexB] = _keyReport.keys[indexB+0x01];
+				}
+				_keyReport.keys[KEYREPORT_KEYCOUNT-count] = 0x00;
+			} else {
+				indexA++; // one more non-zero
+			}
+		}
+	}		
+	
+	if (0x00 != send) {
+		sendReport(&_keyReport);
+	}
+	return 0x01;
+}
+
 // release() takes the specified key out of the persistent key report and
 // sends the report.  This tells the OS the key is no longer pressed and that
 // it shouldn't be repeated any more.
@@ -480,6 +772,12 @@ size_t Keyboard_::release(uint8_t k)
 			_keyReport.modifiers &= ~(0x02);	// the left shift modifier
 			k &= 0x7F;
 		}
+		if (k & 0x40) {
+			//we clean also the case in which ALTGR is pressed
+			_keyReport.modifiers &= ~(0x40);
+			k &= 0x3F;
+		}
+		//TO DO - handle cases for IT_LAYOUT grave accent and tilde
 	}
 	
 	// Test the key report to see if k is present.  Clear it if it exists.
@@ -506,13 +804,45 @@ void Keyboard_::releaseAll(void)
 	sendReport(&_keyReport);
 }
 
+//this function has been modified because it is used by print methods and
+//we want them to be parametrized by keyboard layout too
 size_t Keyboard_::write(uint8_t c)
 {	
 	uint8_t p = press(c);  // Keydown
-	release(c);            // Keyup
+	//release(c);            // Keyup
+	//we use releaseAll() because we encountered problems with print and println function
+	//they don't print consecutive backslash / /
+	//for instance if we issue the command Keyboard.print(F("cmd /T:01 /K"));
+	//the output is "cmd /T:01 K"
+	releaseAll();
 	return p;              // just return the result of press() since release() almost always returns 1
 }
 
+void Keyboard_::setLedStatus(uint8_t s)
+{
+	_ledStatus = s;
+}
+
+uint8_t Keyboard_::getLedStatus(void)
+{
+	return _ledStatus;
+}
+
+//added to introduce parametric keyboard layout
+void Keyboard_::setKeyLayout(uint8_t s)
+{
+	_keyLayout = s;	
+}
+uint8_t Keyboard_::getKeyLayout(void)
+{
+	return _keyLayout;
+}
+
+//added to check if capsLock is on or off
+bool Keyboard_::isCapsLockOn()
+{
+	return ((getLedStatus() & 2) == 2) ? true : false;
+}
 #endif
 
 #endif /* if defined(USBCON) */
