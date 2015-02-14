@@ -1,5 +1,3 @@
-
-
 /* Copyright (c) 2011, Peter Barrett  
 **  
 ** Permission to use, copy, modify, and/or distribute this software for  
