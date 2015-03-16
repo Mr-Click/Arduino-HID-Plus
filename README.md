@@ -4,17 +4,17 @@ Arduino
 * Arduino-HID-Plus is a fork of Arduino repository that includes some extra 
 features on the HID Keyboard implementation and, in particular:
 
-- support for multiple keyboards layouts with methods:
+** support for multiple keyboards layouts with methods:
 
 ```Keyboard.setKeyLayout(); Keyboard.getKeyLayout()```
 
-Currently, the platform supports US_LAYOUT and IT_LAYOUT where each layout is implemented with a different asciimap array.
+*Currently, the platform supports US_LAYOUT and IT_LAYOUT where each layout is implemented with a different asciimap array.
 
-- support for CAPSLOCK LED status with methods:
+** support for CAPSLOCK LED status with methods:
 
 ```Keyboard.setLedStatus(); Keyboard.getLedStatus(); Keyboard.isCapsLockOn()```
 
-All these features have been implemented by patching the following files from arduino repository
+*All these features have been implemented by patching the following files from arduino repository
 
 ```hardware/arduino/avr/cores/arduino/[HID.cpp,USBAPI.h]```
 
