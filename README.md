@@ -19,7 +19,7 @@ All these features have been implemented by patching the following files from ar
 ```hardware/arduino/avr/cores/arduino/[HID.cpp,USBAPI.h]```
 
 Installation
-------------
+============
 * Download Arduino-HID-Plus repository with
 
 ```git clone https://github.com/valerio-click/Arduino-HID-Plus.git```
@@ -29,7 +29,7 @@ Installation
 ```cd build/ &&  ant && ant run```
 
 Credits
---------
+=======
 * This project is a patchwork of several hacks and ideas found on-line:
 - https://weizenspr.eu/2013/arduino-leonardo-und-das-keyboard-api-problem/
   where it is presented a patch to directly send keycodes via the Keyboard API (  available at (https://github.com/weizenspreu/Arduino/) 
